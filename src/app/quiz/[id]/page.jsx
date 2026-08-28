@@ -19,8 +19,7 @@ export default function Page() {
   const [userAnswers, setUserAnswers] = useState({});
   const [submittedQuizzes, setSubmittedQuizzes] = useState({});
     const router = useRouter();
-
-  useEffect(() => {
+     useEffect(() => {
     async function fetchMainTitle() {
       if (!id) return;
       const { data, error } = await supabase
@@ -68,6 +67,9 @@ export default function Page() {
       setAsuult("")
     }
   }
+  function handleEdit () {
+
+  }
   function handleSelect(questionId, letter) {
     if (submittedQuizzes[questionId]) return;
     setUserAnswers({ ...userAnswers, [questionId]: letter });
@@ -88,9 +90,9 @@ export default function Page() {
   if (!quiz) return <div className="text-center mt-10 text-gray-500 font-sans">Quiz title not found.</div>;
   return (
     <div>
-      {!userLogged ?  <div className="max-w-2xl p-10 flex flex-col px-5 font-sans text-gray-800">
+      <div className="max-w-2xl p-10 flex flex-col px-5 font-sans text-gray-800">
         <h1 className="text-3xl font-bold mb-6">Quiz: {quiz.title}</h1>
-        <div className="flex flex-row gap-20">
+        <div className=" flex flex-row gap-20">
           <div className="bg-white w-150 border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-4">Create New Question</h2>
             <div className="flex flex-col gap-3 mb-4">
@@ -125,68 +127,45 @@ export default function Page() {
               Add Question
             </button>
           </div>
-          <div className="w-80 bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
-            <h1 className="text-3xl w-80">Total Score:</h1>
-            <div>{score}/{totalQuestions}</div>
-          </div>
+         
         </div>
-        <div className="w-250 grid p-0 grid-cols-3 flex-row gap-10 h-full">
+        <div className="w-250 grid p-0 grid-cols-3 flex-row gap-10">
           {quizList.map((quizItem) => {
             const selectedAnswer = userAnswers[quizItem.id];
             const isSubmitted = submittedQuizzes[quizItem.id];
             const isCorrect = selectedAnswer === quizItem.correct;
             return (
               <div key={quizItem.id} className="w-80 bg-white border border-gray-200 h-100 rounded-lg p-6 shadow-sm">
-                <h3 className="text-sm font-semibold text-gray-500 mb-4">Question ID: {quizItem.id}</h3>
                 <h1 className="pb-2.5">{quizItem.asuult}</h1>
                 <div className="flex w-70 flex-col gap-2 mb-4">
                   {["A", "B", "C", "D"].map((letter) => {
                     const optionText = quizItem[letter.toLowerCase()];
                     const isCurrentSelection = selectedAnswer === letter;
                     return (
+                      <div key={letter}>
                       <button
-                        key={letter}
                         disabled={isSubmitted}
                         onClick={() => handleSelect(quizItem.id, letter)}
-                        className={`text-left p-3 border rounded-md text-sm transition-all
+                        className={`text-left w-70 p-3 border rounded-md text-sm transition-all
                           ${isCurrentSelection 
                             ? "bg-blue-50 border-blue-600 font-semibold" 
                             : "bg-white border-gray-200 hover:bg-gray-50"
                           } 
-                          ${isSubmitted ? "cursor-not-allowed opacity-80" : "cursor-pointer"}`}
+                         `}
                       >
-                        <span className="font-semibold text-gray-400 mr-2">{letter}</span> {optionText}
+                        <span className="font-semibold text-gray-400 mr-2">{letter}</span> {optionText} 
                       </button>
+                        </div>
                     );
                   })}
+                    <button onClick={(handleEdit)}>Edit</button>
                 </div>
-                {!isSubmitted ? (
-                  <button
-                    disabled={!selectedAnswer}
-                    onClick={() => handleSubmit(quizItem.id)}
-                    className={`bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors
-                      ${!selectedAnswer 
-                        ? "opacity-50 cursor-not-allowed" 
-                        : "hover:bg-blue-700 cursor-pointer"}`}
-                  >
-                    Submit Answer
-                  </button>
-                ) : (
-                  <div className={`border rounded-md p-4 mt-3 text-sm space-y-1
-                    ${isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
-                  >
-                    <p>Your choice: <strong className="font-semibold">{selectedAnswer}</strong></p>
-                    <p>Correct choice: <strong className="font-semibold">{quizItem.correct}</strong></p>
-                    <p className={`font-bold mt-2 ${isCorrect ? "text-green-700" : "text-red-700"}`}>
-                      Result: {isCorrect ? "CORRECT" : "INCORRECT"}
-                    </p>
-                  </div>
-                )}
+               
               </div>
             );
           })}
         </div>
-      </div> : router.push(`/login`)}
+      </div> 
     </div>
   );
 }

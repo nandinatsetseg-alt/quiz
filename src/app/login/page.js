@@ -1,8 +1,9 @@
 "use client";
-
+// login page
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase/client";
+import Link from "next/link";
 export default function Home() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +15,7 @@ export default function Home() {
     if (data) {
       setUsers(data);
     }
-    if (error) console.log("Error fetching users:", error);
+    if (error) console.log("Error finding user:", error);
   };
 
   useEffect(() => {
@@ -30,23 +31,49 @@ export default function Home() {
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const isFormValid = isNameValid && isPassLength && hasUpper && hasLower;
+  // async function handleSave() {
+  //   if (!isFormValid) return;
+
+  //   const { data, error } = await supabase
+  //     .from("Log in")
+  //     .insert({ Name: name, Password: password })
+  //     .select();
+
+  //   if (data) {
+  //     setUsers([...users, ...data]);
+  //     setName("");
+  //     setPassword("");
+  //     window.localStorage.setItem("name", name);
+  //   }
+
+  //   if (error) {
+  //     console.log("Error saving user:", error);
+  //   }
+  // }
   async function handleSave() {
     if (!isFormValid) return;
 
+    // 1. Fetch only the user that matches both the Name and Password
     const { data, error } = await supabase
       .from("Log in")
-      .insert({ Name: name, Password: password })
-      .select();
-
-    if (data) {
-      setUsers([...users, ...data]);
-      setName("");
-      setPassword("");
-      window.localStorage.setItem("name", name);
-    }
+      .select()
+      .eq("Name", name)
+      .eq("Password", password);
 
     if (error) {
-      console.log("Error saving user:", error);
+      console.log("Error checking user:", error);
+      return;
+    }
+
+    // 2. If an array is returned and it's not empty, the user exists
+    if (data && data.length > 0) {
+      window.localStorage.setItem("name", name);
+      setName("");
+      setPassword("");
+      router.push("/quizes");
+    } else {
+      console.log("buruu bn (Нэвтрэх нэр эсвэл нууц үг буруу)");
+      alert("Нэвтрэх нэр эсвэл нууц үг буруу байна!");
     }
   }
 
@@ -68,7 +95,7 @@ export default function Home() {
     <div className="flex w-full min-h-screen p-5 justify-center items-center bg-gray-100">
       <div className="bg-amber-50 w-[360px] min-h-[400px] flex gap-2 flex-col p-5 shadow-md rounded-xl">
         <h1 className="text-xl font-bold flex justify-center items-center mb-2">
-          Create User
+          Log in
         </h1>
 
         <div className="flex flex-col gap-3">
@@ -122,7 +149,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex justify-center items-center p-5 mt-auto">
+        <div className="flex flex-col gap-5 justify-center items-center p-5 mt-auto">
           <button
             onClick={handleSave}
             disabled={!isFormValid}
@@ -134,6 +161,12 @@ export default function Home() {
           >
             Log In
           </button>
+          <div className="flex flex-row gap-3">
+            <div className="text-s"> Don't have an account?</div>
+            <Link href="/" className="underline text-blue-500">
+              Click here{" "}
+            </Link>
+          </div>
         </div>
       </div>
     </div>
