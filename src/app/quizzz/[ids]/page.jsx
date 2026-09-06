@@ -14,7 +14,20 @@ export default function Page() {
   const [userAnswers, setUserAnswers] = useState({});
   const [submittedQuizzes, setSubmittedQuizzes] = useState({});
   const [isFinished, setIsFinished] = useState(false);
-    const [number, setNumber] = useState(0);
+  const [number, setNumber] = useState(0);
+  const [name, setName] = useState("");
+  const [savingScore, setSavingScore] = useState(false);
+
+  useEffect(() => {
+    const storedName = window.localStorage.getItem("name");
+    setName(storedName || "Anonymous User");
+  }, []);
+
+  const score = quizList.reduce((onoo, quizItem) => {
+    const isSubmitted = submittedQuizzes[quizItem.id];
+    const isCorrect = userAnswers[quizItem.id] === quizItem.correct;
+    return isSubmitted && isCorrect ? onoo + 1 : onoo;
+  }, 0);
 
   useEffect(() => {
     async function fetchMainTitle() {
@@ -45,11 +58,19 @@ export default function Page() {
     }
     fetchQuestions();
   }, [quiz?.title]);
-
-  function handleNext() {
+  async function handleNext() {
     if (number < quizList.length - 1) {
       setNumber(number + 1);
     } else {
+      setSavingScore(true);
+      const { error } = await supabase
+        .from("Score")
+        .insert({ name: name, title: quiz.title, score: score });
+
+      if (error) {
+        console.error("Error saving total quiz score:", error);
+      }
+      setSavingScore(false);
       setIsFinished(true);
     }
   }
@@ -64,12 +85,6 @@ export default function Page() {
       setSubmittedQuizzes({ ...submittedQuizzes, [questionId]: true });
     }
   }
-
-  const score = quizList.reduce((acc, quizItem) => {
-    const isSubmitted = submittedQuizzes[quizItem.id];
-    const isCorrect = userAnswers[quizItem.id] === quizItem.correct;
-    return isSubmitted && isCorrect ? acc + 1 : acc;
-  }, 0);
 
   const totalQuestions = quizList.length;
 
@@ -160,10 +175,11 @@ export default function Page() {
               </div>
 
               <button
+                disabled={savingScore}
                 onClick={handleNext}
-                className="w-full h-11 bg-gray-900 text-white font-medium rounded-md hover:bg-gray-800 transition-colors text-sm cursor-pointer"
+                className="w-full h-11 bg-gray-900 text-white font-medium rounded-md hover:bg-gray-800 transition-colors text-sm cursor-pointer disabled:opacity-50"
               >
-                {number === quizList.length - 1 ? "Finish Quiz" : "Next Question →"}
+                {savingScore ? "Saving Score..." : number === quizList.length - 1 ? "Finish Quiz" : "Next Question →"}
               </button>
             </div>
           )}
