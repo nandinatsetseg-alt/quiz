@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase/client";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Home() {
   const [quizList, setQuizList] = useState([]);
@@ -66,9 +67,11 @@ export default function Home() {
       setQuizList([...quizList, data[0]]);
       setTitle("");
       console.log(name);
+      toast.success("Quiz created successfully!");
     }
     if (error) {
       console.error("Error adding quiz:", error);
+      toast.error("Failed to create quiz.");
     }
   }
   function handleEdit(quiz) {
@@ -79,16 +82,16 @@ export default function Home() {
     const trimmedEditTitle = editTitle.trim();
     if (!trimmedEditTitle) return;
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("title")
       .update({ title: trimmedEditTitle })
-      .eq("id", Id);
+      .eq("id", Id)
+      .select();
 
     if (error) {
       console.error("Error garlaa: ", error);
       return;
     }
-
     setQuizList(
       quizList.map((quiz) =>
         quiz.id === Id ? { ...quiz, title: trimmedEditTitle } : quiz,
@@ -96,19 +99,22 @@ export default function Home() {
     );
     setEditingId(null);
   }
+
   async function handleDelete(quizId) {
     if (!quizId) return;
-
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this quiz?",
+    );
+    if (!isConfirmed) return;
     const { error } = await supabase.from("title").delete().eq("id", quizId);
-
     if (error) {
       console.error("Ustgahad error garsan bn:", error);
+      toast.error("Failed to delete quiz.");
       return;
     }
-
     setQuizList(quizList.filter((item) => item.id !== quizId));
+    toast.success("Quiz deleted successfully!");
   }
-
   return (
     <div className="p-6 flex justify-center  flex-row gap-10">
       <div className="flex gap-5 flex-col">
@@ -150,14 +156,14 @@ export default function Home() {
                 key={quizz.id || index}
               >
                 <div>
-                  {!isEditingThis ? (
-                    <p className="font-medium">{quizz.title}</p>
-                  ) : (
+                  {isEditingThis ? (
                     <input
                       className="px-2 py-1  border rounded border-gray-400"
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
                     />
+                  ) : (
+                    <p className="font-medium">{quizz.title}</p>
                   )}
                 </div>
                 <div>
@@ -186,7 +192,7 @@ export default function Home() {
                         ) : (
                           <div>
                             <button
-                              onClick={() => handleEdit(quizz.title)}
+                              onClick={() => handleEdit(quizz)}
                               className="bg-yellow-200 w-15 h-8 font-semibold rounded-2xl border"
                             >
                               Edit
@@ -235,6 +241,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

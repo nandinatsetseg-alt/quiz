@@ -17,10 +17,10 @@ export default function Page() {
   const [number, setNumber] = useState(0);
   const [name, setName] = useState("");
   const [savingScore, setSavingScore] = useState(false);
-
-  useEffect(() => {
+  const [time, setTime] = useState(20);
+   useEffect(() => {
     const storedName = window.localStorage.getItem("name");
-    setName(storedName || "Anonymous User");
+    setName(storedName);
   }, []);
 
   const score = quizList.reduce((onoo, quizItem) => {
@@ -43,7 +43,7 @@ export default function Page() {
     }
     fetchMainTitle();
   }, [ids]);
-
+    
   useEffect(() => {
     async function fetchQuestions() {
       if (!quiz?.title) return;
@@ -117,15 +117,18 @@ export default function Page() {
   const isCorrect = selectedAnswer === quizItem.correct;
 
   return (
-    <div className="max-w-2xl mx-auto p-6 font-sans text-gray-800">
+    <div className="max-w-2xl flex justify-center flex-col gap-5  items-center mx-auto p-6 font-sans text-gray-800">
       <div className="flex justify-between items-center mb-6 border-b pb-4">
         <h1 className="text-2xl font-bold text-gray-900">Quiz: {quiz.title}</h1>
         <span className="bg-gray-100 text-gray-600 font-medium px-3 py-1 rounded-full text-sm">
           Question {number + 1} of {totalQuestions}
         </span>
       </div>
-
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+<div className="w-50 h-20 felx p-3 justify-center rounded-2xl items-center bg-blue-200">
+  <div className="flex items-center justify-center">Timer</div>
+  <div className="flex items-center justify-center font-bold text-2xl">{time}</div>
+</div>
+      <div className="bg-white border w-100 border-gray-200 rounded-lg p-6 shadow-sm">
         <h2 className="text-xl font-medium mb-6">{quizItem.asuult}</h2>
         
         <div className="flex flex-col gap-3 mb-6">
