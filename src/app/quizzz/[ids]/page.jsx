@@ -43,7 +43,19 @@ export default function Page() {
     }
     fetchMainTitle();
   }, [ids]);
-    
+    useEffect(() => {
+      if (loading || isFinished ||  quizList.length === 0) return;
+      const currentQuestion = quizList[number];
+      if(currentQuestion && submittedQuizzes[currentQuestion.id]) return;
+      if (time === 0) {
+        handleNext();
+        return;
+      }
+      const timer = setInterval(() => {
+        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+      }, 1000);
+      return () => clearInterval(timer);
+    }, [time, loading, isFinished, number, quizList, submittedQuizzes]);
   useEffect(() => {
     async function fetchQuestions() {
       if (!quiz?.title) return;
@@ -61,6 +73,7 @@ export default function Page() {
   async function handleNext() {
     if (number < quizList.length - 1) {
       setNumber(number + 1);
+      setTime(20);
     } else {
       setSavingScore(true);
       const { error } = await supabase

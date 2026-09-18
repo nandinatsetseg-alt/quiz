@@ -19,8 +19,7 @@ export default function Home() {
     const storedName = window.localStorage.getItem("name");
     if (!storedName) {
       router.push("/login");
-    } else {
-      setName(storedName);
+      return
     }
   }, [router]);
   const getData = async () => {
