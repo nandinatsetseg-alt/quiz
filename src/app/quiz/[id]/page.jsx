@@ -4,7 +4,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../../lib/supabase/client";
 
-
 export default function Page() {
   const { id } = useParams();
   const router = useRouter();
@@ -26,6 +25,7 @@ export default function Page() {
   const [editD, setEditD] = useState("");
   const [userAnswers, setUserAnswers] = useState({});
   const [submittedQuizzes, setSubmittedQuizzes] = useState({});
+
   useEffect(() => {
     async function fetchMainTitle() {
       if (!id) return;
@@ -39,10 +39,12 @@ export default function Page() {
     }
     fetchMainTitle();
   }, [id]);
+
   useEffect(() => {
     const storedName = window.localStorage.getItem("name");
     setName(storedName);
   }, []);
+
   useEffect(() => {
     async function fetchQuestions() {
       if (!quiz?.title) return;
@@ -76,6 +78,7 @@ export default function Page() {
       setAsuult("");
     }
   }
+
   function startEditing(quizItem) {
     setEditingId(quizItem.id);
     setEditAsuult(quizItem.asuult);
@@ -84,6 +87,7 @@ export default function Page() {
     setEditC(quizItem.c);
     setEditD(quizItem.d);
   }
+
   async function handleUpdate(id) {
     if (!editAsuult.trim()) return;
 
@@ -110,34 +114,39 @@ export default function Page() {
     setEditingId(null);
   }
 
-  if (loading) return <div className="text-center mt-10 text-gray-500 font-sans">Loading...</div>;
-  if (!quiz) return <div className="text-center mt-10 text-gray-500 font-sans">Quiz title not found.</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#eaf4f4] text-xl font-bold text-[#795548] font-serif">Loading...</div>;
+  if (!quiz) return <div className="min-h-screen flex items-center justify-center bg-[#eaf4f4] text-xl font-bold text-[#795548] font-serif">Quiz title not found.</div>;
 
   return (
-    <div>
-      <div className="max-w-2xl p-10 flex flex-col px-5 font-sans text-gray-800">
-        <h1 className="text-3xl font-bold mb-6">Quiz: {quiz.title}</h1>
-        <div>
-          <div>Creater by: {name}</div>
+    <div className="min-h-screen bg-[#eaf4f4] bg-gradient-to-br from-[#e0f2f1] via-[#eaf4f4] to-[#fff3e0] text-[#3e2723] font-sans p-8">
+      <div className="max-w-7xl mx-auto flex flex-col gap-8">
+                <div>
+          <h1 className="text-4xl font-extrabold mb-3 text-[#795548] font-serif drop-shadow-sm">Quiz: {quiz.title}</h1>
+          <div className="text-lg font-medium text-[#5d4037] bg-white/60 inline-block px-5 py-2 rounded-full border-2 border-[#efebe9] shadow-sm">
+            Creater by: <span className="font-bold text-[#1b5e20]">{name}</span>
+          </div>
         </div>
-                <div className="flex flex-row gap-20">
-          <div className="bg-white w-150 border border-gray-200 rounded-lg p-6 mb-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">Create New Question</h2>
-            <div className="flex flex-col gap-3 mb-4">
-              <input 
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-gray-500"
-                type="text" 
-                value={asuult} 
-                onChange={(event) => setAsuult(event.target.value)} 
-                placeholder="Question"
-              />
+        <div className="bg-[#fff9c4]/60 backdrop-blur-sm border-2 border-[#ffe082]/50 rounded-[2rem] p-8 shadow-xl max-w-2xl">
+          <h2 className="text-2xl font-bold text-[#795548] font-serif mb-6 flex items-center gap-2">
+            🌱 Create New Question
+          </h2>
+          <div className="flex flex-col gap-4 mb-6">
+            <input 
+              className="w-full border-2 border-[#bcaaa4] bg-[#fff8e1]/80 p-4 rounded-2xl shadow-inner focus:outline-none focus:border-[#ffb300] focus:bg-white transition-all text-[#5d4037] placeholder-[#a1887f] font-medium"
+              type="text" 
+              value={asuult} 
+              onChange={(event) => setAsuult(event.target.value)} 
+              placeholder="Question"
+            />
+            
+            <div className="grid grid-cols-1 gap-3 pl-2">
               {["A", "B", "C", "D"].map((letter) => (
-                <div key={letter} className="flex items-center gap-3">
+                <div key={letter} className="flex items-center gap-4">
                   <input
                     type="checkbox"
                     checked={selected === letter}
                     onChange={() => setSelected(letter)}
-                    className="w-4 h-4 cursor-pointer text-gray-900 border-gray-300 rounded focus:ring-gray-500"
+                    className="w-6 h-6 cursor-pointer accent-[#ffb300] bg-white border-2 border-[#bcaaa4] rounded-md transition-all"
                   />
                   <input
                     value={letter === "A" ? a : letter === "B" ? b : letter === "C" ? c : d}
@@ -148,45 +157,48 @@ export default function Page() {
                       if (letter === "D") setD(e.target.value);
                     }}
                     placeholder={`Choice ${letter}`}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-gray-500"
+                    className="flex-1 border-2 border-[#d7ccc8] bg-white/90 p-3 rounded-xl focus:outline-none focus:border-[#ffb300] transition-all text-[#4e342e] font-medium"
                   />
                 </div>
               ))}
             </div>
-            <button 
-              onClick={handleSave} 
-              className="w-full bg-gray-900 text-white text-sm font-medium py-2.5 px-4 rounded-md hover:bg-gray-800 transition-colors"
-            >
-              Add Question
-            </button>
           </div>
+          <button 
+            onClick={handleSave} 
+            className="w-full bg-[#ffca28] hover:bg-[#ffb300] border-2 border-[#ffb300] text-[#5d4037] font-bold py-4 px-6 rounded-full shadow-md hover:shadow-lg transition-transform active:scale-95 text-lg"
+          >
+            Add Question
+          </button>
         </div>
-        <div className="w-250 grid p-0 grid-cols-3 gap-10">
+
+        {/* Questions Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-12">
           {quizList.map((quizItem) => {
             const isEditingThis = editingId === quizItem.id;
 
             return (
-              <div key={quizItem.id} className="w-80 bg-white border border-gray-200 min-h-70 rounded-lg p-6 shadow-sm flex flex-col justify-between">
+              <div key={quizItem.id} className="bg-white/90 border-2 border-[#efebe9] rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#ffecb3] transition-all flex flex-col justify-between h-full">
                 <div>
                   {isEditingThis ? (
                     <input
-                      className="w-full px-2 py-1 mb-2 border rounded border-gray-400"
+                      className="w-full px-4 py-3 mb-4 border-2 rounded-2xl border-[#81c784] bg-[#f1f8e9] focus:outline-none shadow-inner text-[#2e7d32] font-bold"
                       value={editAsuult}
                       onChange={(e) => setEditAsuult(e.target.value)}
                     />
                   ) : (
-                    <h1 className="pb-2.5 font-medium">{quizItem.asuult}</h1>
+                    <h1 className="text-xl font-bold text-[#4e342e] mb-4 leading-snug">{quizItem.asuult}</h1>
                   )}
-                  <div className="flex w-70 flex-col gap-2 mb-4">
+                  
+                  <div className="flex flex-col gap-3 mb-6">
                     {["A", "B", "C", "D"].map((letter) => {
                       const optionText = quizItem[letter.toLowerCase()];
                       
                       return (
-                        <div key={letter} className="flex items-center">
-                          <span className="font-semibold text-gray-400 mr-2">{letter}:</span>
+                        <div key={letter} className="flex items-center bg-[#fff8e1]/40 rounded-xl p-2 border border-transparent hover:border-[#ffe082] transition-colors">
+                          <span className="font-bold text-[#8d6e63] w-6 flex-shrink-0">{letter}:</span>
                           {isEditingThis ? (
                             <input
-                              className="border px-2 py-0.5 rounded text-sm w-full"
+                              className="flex-1 border-2 border-[#bcaaa4] px-3 py-2 rounded-xl text-sm focus:outline-none focus:border-[#81c784] shadow-inner bg-white text-[#3e2723]"
                               value={
                                 letter === "A" ? editA : 
                                 letter === "B" ? editB : 
@@ -200,7 +212,7 @@ export default function Page() {
                               }}
                             />
                           ) : (
-                            <p>{optionText}</p>
+                            <p className="text-[#5d4037] font-medium break-words">{optionText}</p>
                           )}
                         </div>
                       );
@@ -208,33 +220,36 @@ export default function Page() {
                   </div>
                 </div>
 
-                {isEditingThis ? (
-                  <div className="flex gap-2">
+                <div className="mt-auto pt-4 border-t-2 border-[#f5f5f5]">
+                  {isEditingThis ? (
+                    <div className="flex gap-3">
+                      <button
+                        className="bg-[#c8e6c9] hover:bg-[#a5d6a7] text-[#2e7d32] flex-1 rounded-full h-12 font-bold shadow-sm transition-transform hover:-translate-y-0.5"
+                        onClick={() => handleUpdate(quizItem.id)}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="bg-[#ffcdd2] hover:bg-[#ef9a9a] text-[#c62828] px-6 rounded-full h-12 font-bold shadow-sm transition-transform hover:-translate-y-0.5"
+                        onClick={() => setEditingId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
                     <button
-                      className="bg-green-700 flex-1 rounded-xl h-10 text-white font-medium text-sm"
-                      onClick={() => handleUpdate(quizItem.id)}
+                      className="bg-[#b3e5fc] hover:bg-[#81d4fa] text-[#0277bd] w-full rounded-full h-12 font-bold shadow-sm transition-transform hover:-translate-y-0.5"
+                      onClick={() => startEditing(quizItem)}
                     >
-                      Save
+                      Edit Question
                     </button>
-                    <button
-                      className="bg-gray-400 px-3 rounded-xl h-10 text-white font-medium text-sm"
-                      onClick={() => setEditingId(null)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    className="bg-blue-950 w-full rounded-xl h-10 text-white font-medium text-sm"
-                    onClick={() => startEditing(quizItem)}
-                  >
-                    Edit
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
+        
       </div> 
     </div>
   );

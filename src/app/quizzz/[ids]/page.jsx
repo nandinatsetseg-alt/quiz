@@ -18,7 +18,8 @@ export default function Page() {
   const [name, setName] = useState("");
   const [savingScore, setSavingScore] = useState(false);
   const [time, setTime] = useState(20);
-   useEffect(() => {
+
+  useEffect(() => {
     const storedName = window.localStorage.getItem("name");
     setName(storedName);
   }, []);
@@ -43,19 +44,21 @@ export default function Page() {
     }
     fetchMainTitle();
   }, [ids]);
-    useEffect(() => {
-      if (loading || isFinished ||  quizList.length === 0) return;
-      const currentQuestion = quizList[number];
-      if(currentQuestion && submittedQuizzes[currentQuestion.id]) return;
-      if (time === 0) {
-        handleNext();
-        return;
-      }
-      const timer = setInterval(() => {
-        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
-      }, 1000);
-      return () => clearInterval(timer);
-    }, [time, loading, isFinished, number, quizList, submittedQuizzes]);
+
+  useEffect(() => {
+    if (loading || isFinished ||  quizList.length === 0) return;
+    const currentQuestion = quizList[number];
+    if(currentQuestion && submittedQuizzes[currentQuestion.id]) return;
+    if (time === 0) {
+      handleNext();
+      return;
+    }
+    const timer = setInterval(() => {
+      setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [time, loading, isFinished, number, quizList, submittedQuizzes]);
+
   useEffect(() => {
     async function fetchQuestions() {
       if (!quiz?.title) return;
@@ -70,6 +73,7 @@ export default function Page() {
     }
     fetchQuestions();
   }, [quiz?.title]);
+
   async function handleNext() {
     if (number < quizList.length - 1) {
       setNumber(number + 1);
@@ -101,25 +105,27 @@ export default function Page() {
 
   const totalQuestions = quizList.length;
 
-  if (loading) return <div className="text-center mt-10 text-gray-500 font-sans">Loading...</div>;
-  if (!quiz) return <div className="text-center mt-10 text-gray-500 font-sans">Quiz title not found.</div>;
-  if (quizList.length === 0) return <div className="text-center mt-10 text-gray-500 font-sans">No questions found.</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#eaf4f4] text-xl font-bold text-[#795548] font-serif">Loading...</div>;
+  if (!quiz) return <div className="min-h-screen flex items-center justify-center bg-[#eaf4f4] text-xl font-bold text-[#795548] font-serif">Quiz title not found.</div>;
+  if (quizList.length === 0) return <div className="min-h-screen flex items-center justify-center bg-[#eaf4f4] text-xl font-bold text-[#795548] font-serif">No questions found.</div>;
 
   if (isFinished) {
     return (
-      <div className="max-w-md mx-auto p-10 mt-10 text-center font-sans border rounded-lg shadow-sm bg-white">
-        <h1 className="text-3xl font-bold mb-4">Quiz Finished!</h1>
-        <p className="text-xl mb-6 text-gray-600">Thank you for participating in {quiz.title}.</p>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <p className="text-sm uppercase tracking-wide text-gray-500 font-semibold mb-1">Your Total Score</p>
-          <span className="text-4xl font-extrabold text-blue-700">{score} / {totalQuestions}</span>
+      <div className="min-h-screen bg-[#eaf4f4] bg-gradient-to-br from-[#e0f2f1] via-[#eaf4f4] to-[#fff3e0] flex items-center justify-center p-6 font-sans">
+        <div className="w-full max-w-lg p-10 text-center bg-white/90 border-2 border-[#ffe082]/50 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
+          <h1 className="text-4xl font-extrabold mb-4 text-[#795548] font-serif">Quiz Finished!</h1>
+          <p className="text-lg mb-8 text-[#5d4037]">Thank you for participating in {quiz.title}.</p>
+          <div className="bg-[#fff9c4]/80 border-2 border-[#ffe082] rounded-3xl p-8 mb-8 shadow-inner">
+            <p className="text-sm uppercase tracking-wider text-[#8d6e63] font-bold mb-2">Your Total Score</p>
+            <span className="text-5xl font-extrabold text-[#f57f17] drop-shadow-sm">{score} / {totalQuestions}</span>
+          </div>
+          <button 
+            onClick={() => router.push("/quizes")} 
+            className="bg-[#b3e5fc] hover:bg-[#81d4fa] text-[#0277bd] border-2 border-[#81d4fa] font-bold px-8 py-4 rounded-full transition-transform hover:-translate-y-1 shadow-md w-full text-lg"
+          >
+            Back to Quizes
+          </button>
         </div>
-        <button 
-          onClick={() => router.push("/quizes")} 
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-md transition-colors"
-        >
-          Back to Quizes
-        </button>
       </div>
     );
   }
@@ -130,75 +136,90 @@ export default function Page() {
   const isCorrect = selectedAnswer === quizItem.correct;
 
   return (
-    <div className="max-w-2xl flex justify-center flex-col gap-5  items-center mx-auto p-6 font-sans text-gray-800">
-      <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Quiz: {quiz.title}</h1>
-        <span className="bg-gray-100 text-gray-600 font-medium px-3 py-1 rounded-full text-sm">
-          Question {number + 1} of {totalQuestions}
-        </span>
-      </div>
-<div className="w-50 h-20 felx p-3 justify-center rounded-2xl items-center bg-blue-200">
-  <div className="flex items-center justify-center">Timer</div>
-  <div className="flex items-center justify-center font-bold text-2xl">{time}</div>
-</div>
-      <div className="bg-white border w-100 border-gray-200 rounded-lg p-6 shadow-sm">
-        <h2 className="text-xl font-medium mb-6">{quizItem.asuult}</h2>
+    <div className="min-h-screen bg-[#eaf4f4] bg-gradient-to-br from-[#e0f2f1] via-[#eaf4f4] to-[#fff3e0] py-10 px-4 font-sans text-[#3e2723]">
+      <div className="max-w-2xl mx-auto flex flex-col gap-6 items-center">
         
-        <div className="flex flex-col gap-3 mb-6">
-          {["A", "B", "C", "D"].map((letter) => {
-            const optionText = quizItem[letter.toLowerCase()];
-            const isCurrentSelection = selectedAnswer === letter;
-            return (
-              <button
-                key={letter}
-                disabled={isSubmitted}
-                onClick={() => handleSelect(quizItem.id, letter)}
-                className={`text-left p-4 border rounded-md text-sm transition-all
-                  ${isCurrentSelection 
-                    ? "bg-blue-50 border-blue-600 font-semibold" 
-                    : "bg-white border-gray-200 hover:bg-gray-50"
-                  } 
-                  ${isSubmitted ? "cursor-not-allowed opacity-75" : "cursor-pointer"}`}
-              >
-                <span className="font-semibold text-gray-400 mr-3">{letter}</span> {optionText} 
-              </button>
-            );
-          })}
+        {/* Header Section */}
+        <div className="w-full flex justify-between items-center px-2">
+          <h1 className="text-3xl font-extrabold text-[#795548] font-serif drop-shadow-sm truncate pr-4">Quiz: {quiz.title}</h1>
+          <span className="bg-[#c8e6c9] text-[#1b5e20] font-bold px-5 py-2 rounded-full text-sm border-2 border-[#a5d6a7] shadow-sm whitespace-nowrap">
+            Question {number + 1} of {totalQuestions}
+          </span>
         </div>
 
-        <div className="flex flex-col gap-4">
-          {!isSubmitted ? (
-            <button
-              disabled={!selectedAnswer}
-              onClick={() => handleSubmit(quizItem.id)}
-              className={`w-full bg-blue-600 text-white font-medium py-3 rounded-md transition-colors text-center text-sm
-                ${!selectedAnswer 
-                  ? "opacity-50 cursor-not-allowed" 
-                  : "hover:bg-blue-700 cursor-pointer"}`}
-            >
-              Submit Answer
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <div className={`border rounded-md p-4 text-sm space-y-1
-                ${isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
-              >
-                <p>Your choice: <strong className="font-semibold">{selectedAnswer}</strong></p>
-                <p>Correct choice: <strong className="font-semibold">{quizItem.correct}</strong></p>
-                <p className={`font-bold mt-2 ${isCorrect ? "text-green-700" : "text-red-700"}`}>
-                  Result: {isCorrect ? "CORRECT" : "INCORRECT"}
-                </p>
-              </div>
+        {/* Timer */}
+        <div className="w-48 h-24 flex flex-col justify-center items-center rounded-[2rem] bg-[#fff9c4] border-2 border-[#ffe082] shadow-md transition-all">
+          <div className="text-sm font-bold text-[#8d6e63] uppercase tracking-wider">Timer</div>
+          <div className={`font-extrabold text-4xl ${time <= 5 ? 'text-[#c62828] animate-pulse' : 'text-[#f57f17]'}`}>
+            {time}
+          </div>
+        </div>
 
+        {/* Question Card */}
+        <div className="bg-white/90 border-2 border-[#efebe9] w-full rounded-[2.5rem] p-8 shadow-xl backdrop-blur-sm">
+          <h2 className="text-2xl font-bold mb-8 text-[#4e342e] leading-snug">{quizItem.question}</h2>
+          
+          {/* Options */}
+          <div className="flex flex-col gap-4 mb-8">
+            {["A", "B", "C", "D"].map((letter) => {
+              const optionText = quizItem[letter.toLowerCase()];
+              const isCurrentSelection = selectedAnswer === letter;
+              return (
+                <button
+                  key={letter}
+                  disabled={isSubmitted}
+                  onClick={() => handleSelect(quizItem.id, letter)}
+                  className={`text-left p-5 border-2 rounded-2xl text-lg transition-all
+                    ${isCurrentSelection 
+                      ? "bg-[#fff8e1] border-[#ffb300] font-bold text-[#5d4037] shadow-inner" 
+                      : "bg-white border-[#efebe9] hover:border-[#ffe082] hover:bg-[#fff9c4]/30 text-[#4e342e]"
+                    } 
+                    ${isSubmitted ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:shadow-sm"}`}
+                >
+                  <span className={`font-extrabold mr-4 ${isCurrentSelection ? "text-[#f57f17]" : "text-[#bcaaa4]"}`}>{letter}</span> 
+                  {optionText} 
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Action Area */}
+          <div className="flex flex-col gap-4">
+            {!isSubmitted ? (
               <button
-                disabled={savingScore}
-                onClick={handleNext}
-                className="w-full h-11 bg-gray-900 text-white font-medium rounded-md hover:bg-gray-800 transition-colors text-sm cursor-pointer disabled:opacity-50"
+                disabled={!selectedAnswer}
+                onClick={() => handleSubmit(quizItem.id)}
+                className={`w-full font-bold py-4 rounded-full transition-all text-center text-lg border-2
+                  ${!selectedAnswer 
+                    ? "bg-[#d7ccc8]/50 border-[#d7ccc8]/50 text-[#8d6e63] opacity-50 cursor-not-allowed" 
+                    : "bg-[#ffca28] hover:bg-[#ffb300] border-[#ffb300] text-[#5d4037] shadow-md hover:shadow-lg hover:-translate-y-1 cursor-pointer"}`}
               >
-                {savingScore ? "Saving Score..." : number === quizList.length - 1 ? "Finish Quiz" : "Next Question →"}
+                Submit Answer
               </button>
-            </div>
-          )}
+            ) : (
+              <div className="space-y-6">
+                <div className={`border-2 rounded-3xl p-6 text-base space-y-2
+                  ${isCorrect ? "bg-[#f1f8e9] border-[#a5d6a7] text-[#2e7d32]" : "bg-[#ffebee] border-[#ef9a9a] text-[#c62828]"}`}
+                >
+                  <p>Your choice: <strong className="font-extrabold text-lg">{selectedAnswer}</strong></p>
+                  <p>Correct choice: <strong className="font-extrabold text-lg">{quizItem.correct}</strong></p>
+                  <div className="mt-4 pt-4 border-t border-current/20">
+                    <p className="font-black text-xl uppercase tracking-wider">
+                      Result: {isCorrect ? "CORRECT" : "INCORRECT"}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  disabled={savingScore}
+                  onClick={handleNext}
+                  className="w-full h-14 bg-[#81c784] hover:bg-[#66bb6a] border-2 border-[#66bb6a] text-[#1b5e20] font-bold rounded-full transition-transform hover:-translate-y-1 shadow-md text-lg cursor-pointer disabled:opacity-50 disabled:hover:translate-y-0"
+                >
+                  {savingScore ? "Saving Score..." : number === quizList.length - 1 ? "Finish Journey" : "Next Question →"}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
